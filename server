@@ -1,0 +1,34 @@
+import socket
+
+HOST = '127.0.0.1'	#loopback interface
+PORT = 5000
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+	s.bind((HOST, PORT))	#bind server socket to loopback address and port 5000
+	s.listen()				#server listens to new connection at 127.0.0.1:5000
+	conn, addr = s.accept()	#accept new connection on socket s
+							#conn is the connection object
+							#addr is client address (ip+port)
+
+	with conn:
+		print ("CONNECTION FROM: ", addr)
+		print ("*** CLIENT TURN ***")
+		while True:
+			data = conn.recv (1024)		#recieve data from client in 1024byte chunks
+			if not data:
+				break					#if no data to recieve, close connection
+			msg = data.decode()
+			print ("Recieved from client: " + msg)
+			if msg == 'end':			#if client sent 'end'
+				print ("*** SERVER TURN ***")
+				while True:
+					server_msg = input()
+					if server_msg != 'end':
+						conn.sendall (server_msg.encode())
+					else:				#if server input message is 'end' change the turn
+						conn.sendall (server_msg.encode())
+						print ("*** CLIENT TURN ***")
+						break
+				
+
+
