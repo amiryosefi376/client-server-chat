@@ -1,0 +1,35 @@
+import socket
+
+HOST = '127.0.0.1'		#server ip addr
+PORT = 5000				#server port addr
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    try:
+        s.connect ((HOST, PORT))			#connecting to server
+        print ("### CONNECTED TO SERVER ###")
+        print ('*** CLIENT TURN ***')
+        while True:
+            terminate = False
+            client_msg = input()
+            if client_msg != 'end':				#while client msg is not 'end' send it to server
+                s.sendall(client_msg.encode())
+            else:
+                s.sendall(client_msg.encode())	#sending end to server means that the turn should be changed
+                print ("*** SERVER TURN ***")
+
+                while True:
+                    data = s.recv (1024)
+                    if not data:
+                        terminate = True		#terminate = True helps outer while to terminate connection!
+                        break
+                    message = data.decode()
+                    print ("Recieved from server: " + message)
+                    if message == 'end':		#while server message is not 'end' listen to it's messages
+                        print ("*** CLIENT TURN ***")
+                        break
+            if terminate:
+                break
+            
+    except Exception as e:					#handle socket exceptions
+        print (e)
+
